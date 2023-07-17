@@ -69,7 +69,7 @@ public class DmlDemo {
         //create contact
         contact c = new contact();
         c.LastName = 'Biden';
-        c.accountid = accountid;
+        c.accountid = accountid;//acc.id
         insert c;
     }
 }

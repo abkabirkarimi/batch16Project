@@ -96,4 +96,20 @@ public class AccountTriggerHandlerTest {
             assert.areEqual(true, c.vip__c);
         }
     }
+    @isTest
+    private static void testDelete() {
+        // prepare Date
+          // account and contacts
+          List<account> listAcc = new list<account>{
+            new account(name = 'May', phone = '7775556666', Industry = 'Energy'),
+            new account(name = 'June', Active__c = 'Yes'),
+            new account(name = 'Sunday', Industry = 'Energy', Active__c = 'Yes')
+        };
+        insert listAcc;
+        try {
+            delete listAcc;
+        } catch (DmlException de) {
+            Assert.isTrue(de.getMessage().contains('Cannot delete'));
+        }
+    }
 }

@@ -3,19 +3,33 @@ public class SPTriggerHandler {
     //parameter: List<SP> newly created salesforce project records.
         //If we are insert 50 project, we have to create corresponding 50 tickets. 1 for each Project.
     public static void createDefaultTicket(list<salesforce_project__c> spTriggerNew) {
-        //create list of ticket so create bulk records
-        List<Salesforce_Ticket__c> listST = new List<Salesforce_Ticket__c>();
+        try {
+            //create list of ticket so create bulk records
+            List<Salesforce_Ticket__c> listST = new List<Salesforce_Ticket__c>();
 
-        for (Salesforce_Project__c newSP : spTriggerNew) {
-            Salesforce_Ticket__c st = new Salesforce_Ticket__c();
-            st.Subject__c = 'Default ST';
-            st.Salesforce_Project__c = newSP.Id;//relationship field
-            listST.add(st);
+            //how to accrss hierarchy custome setting orh level defsult in apex?
+            DefaultTicketInfo__c dt = DefaultTicketInfo__c.getOrgDefaults();
+
+            for (Salesforce_Project__c newSP : spTriggerNew) {
+                Salesforce_Ticket__c st = new Salesforce_Ticket__c();
+                st.Subject__c = dt.Subject__c; //'Default ST';
+                st.description__c = dt.description__c; //'default description';
+                st.priority__c = dt.priority__c;//'High';
+                st.Salesforce_Project__c = newSP.Id;//relationship field
+                listST.add(st);
+            }
+            insert listST;
+        } catch (Exception ex) {
+            for (Salesforce_Project__c newSP : spTriggerNew) {
+                newSP.addError('Default ticket creation failed. Contact YOUR administrator, NOT developer.');
+            }
         }
-        insert listST;
     }
 
-    public static void validate1(list<salesforce_project__c> spTriggerNew, list<salesforce_project__c> spTriggerOld, Map<id, salesforce_project__c> spTriggerNewMap,Map<id, salesforce_project__c> spTriggerOldMap) {
+    public static void validate1(list<salesforce_project__c> spTriggerNew,
+                                list<salesforce_project__c> spTriggerOld,
+                                 Map<id, salesforce_project__c> spTriggerNewMap,
+                                 Map<id, salesforce_project__c> spTriggerOldMap) {
         //logic
         
         //assuming we update 10 SP
@@ -35,7 +49,9 @@ public class SPTriggerHandler {
         }
 
         //get all the tickets of spid where status is not completed
-        List<Salesforce_Ticket__c> listST = [select id, salesforce_project__c, status__c from salesforce_ticket__c where Salesforce_Project__c in :spId and status__c != 'Completed'];
+        List<Salesforce_Ticket__c> listST = [select id, salesforce_project__c,
+                                            status__c from salesforce_ticket__c
+                                            where Salesforce_Project__c in :spId and status__c != 'Completed'];
 
         //for each loop ticket
             //get new project from newMap
@@ -60,9 +76,10 @@ public class SPTriggerHandler {
         update listSP;
     }
 
-    public static void spCompleted(list<salesforce_project__c> spTriggerNew, list<salesforce_project__c> spTriggerOld,
-     Map<id, salesforce_project__c> spTriggerNewMap,Map<id, salesforce_project__c> spTriggerOldMap) {
-
+    public static void spCompleted(list<salesforce_project__c> spTriggerNew,
+                                   list<salesforce_project__c> spTriggerOld,
+                                    Map<id, salesforce_project__c> spTriggerNewMap, 
+                                    Map<id, salesforce_project__c> spTriggerOldMap) {
         set<id> spIds = new set<id>();
 
         for (Salesforce_Project__c eachSP : spTriggerNew) {
@@ -80,9 +97,9 @@ public class SPTriggerHandler {
     @future
     private static void updateTicketStatus(set<id> spIds) {
         //get or fetch all tickets which are NOT completed for all these SPIDS
-        list<Salesforce_Ticket__c> allST = [select id, status__c from Salesforce_Ticket__c where status__c != 'Completed' 
-        and Salesforce_Project__c in :spIds];
-        
+        list<Salesforce_Ticket__c> allST = [select id, status__c from Salesforce_Ticket__c
+                                            where status__c != 'Completed' AND
+                                             Salesforce_Project__c in :spIds];
         for (Salesforce_Ticket__c st : allST) {
             st.Status__c = 'Completed';
         }

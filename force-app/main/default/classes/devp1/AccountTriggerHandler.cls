@@ -55,7 +55,8 @@ public class AccountTriggerHandler {
          }
          if(!accIds.isEmpty()){
              //fetch all contacts
-             list<contact> listContacts = [select id, name, vip__c, accountid from contact where accountid in :accIds and leadsource != 'Partner Referral'];
+             list<contact> listContacts = [select id, name, vip__c, accountid from contact
+                                           where accountid in :accIds and leadsource != 'Partner Referral'];
  
              //for each loop contact
                  //set vip field of contact same as it's accounts vip field value
