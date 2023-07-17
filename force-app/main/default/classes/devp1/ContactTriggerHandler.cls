@@ -1,5 +1,8 @@
 public class ContactTriggerHandler {
-    public static void validate1(List<contact> cTriggerNew, List<contact> cTriggerOld, Map<id, contact> cTriggerNewmap, map<id, contact> cTriggerOldMap) {
+    public static void validate1(List<contact> cTriggerNew,
+                                 List<contact> cTriggerOld, 
+                                 Map<id, contact> cTriggerNewmap,
+                                 map<id, contact> cTriggerOldMap) {
          //validate.
          //if leadsource is ALREADY partner referral, then DON't ALLOW user to update record.
  
@@ -16,7 +19,10 @@ public class ContactTriggerHandler {
  
          }
     }
-    public static void validate2(List<contact> cTriggerNew, List<contact> cTriggerOld, Map<id, contact> cTriggerNewmap, map<id, contact> cTriggerOldMap) {
+    public static void validate2(List<contact> cTriggerNew,
+                                 List<contact> cTriggerOld,
+                                  Map<id, contact> cTriggerNewmap,
+                                   map<id, contact> cTriggerOldMap) {
          //validate
          //DO NOT ALLOW USER to update LeadSource field.
          for (contact newContact : cTriggerNew) {
@@ -25,7 +31,9 @@ public class ContactTriggerHandler {
                  //old contact leadsource != new contact lead source
              Contact oldContact = cTriggerOldMap.get(newContact.id);
              if (newContact.leadsource != oldContact.LeadSource) {
-                 newContact.LeadSource.addError('Cannot update lead source! Please user. Behave! ');
+                //how to access custom label in apex ?
+                //system.label.labelName
+                 newContact.LeadSource.addError(System.label.ContactValidation2);
              }
          }
     }
